@@ -1,3 +1,7 @@
+#- name: Check directory contents
+#  run: |
+#    ls -la
+
 name: Version increment
 
 on:
@@ -11,20 +15,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Bump release version
-        id: bump_version
-        uses: christian-draeger/increment-semantic-version@1.0.2
-        with:
-          current-version: '2.11.7-alpha3'
-          version-fragment: 'feature'
+    - uses: actions/checkout@v2
+    
+    - name: Read VERSION file
+      uses: juliangruber/read-file-action@v1
+      id: template
+      with:
+        path: ./VERSION.txt
 
-      - name: Do something with your bumped release version
-        run: echo ${{ steps.bump_version.outputs.next-version }}
-        # will print 2.12.0
+    - name: Get the template output
+      run: echo "${{ steps.template.outputs.content }}"
 
-      - name: Commit changes
-        uses: test-room-7/action-update-file@v1
-        with:
-            file-path: .\VERSION
-            commit-msg: Increment version
-            github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Bump release version
+      id: bump_version
+      uses: christian-draeger/increment-semantic-version@1.0.2
+      with:
+        current-version: ${{ steps.template.outputs.content }}
+        version-fragment: 'feature'
+    
+    - name: Write version to file
+      uses: DamianReeves/write-file-action@master
+      with:
+        path: ./VERSION.txt
+        contents: ${{ steps.bump_version.outputs.next-version }}
+        write-mode: 'overwrite'
+    
+    - name: Check new version
+      run: echo ${{ steps.bump_version.outputs.next-version }}
+
+    - name: Commit changes
+      uses: test-room-7/action-update-file@v1
+      with:
+          file-path: VERSION.txt
+          commit-msg: "Increment version ${{ steps.bump_version.outputs.next-version }}"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
