@@ -9,7 +9,8 @@ on:
     branches: [ "main" ]
 
 env:
-  VERSION_FRAGMENT: feature
+  # valid arguments: [ 'major' 'feature' 'bug' 'alpha' 'beta' 'rc' ]
+  VERSION_FRAGMENT: 'feature'
 
 jobs:
   build:
@@ -32,7 +33,7 @@ jobs:
       uses: christian-draeger/increment-semantic-version@1.0.2
       with:
         current-version: ${{ steps.template.outputs.content }}
-        version-fragment: $VERSION_FRAGMENT
+        version-fragment: ${{ env.VERSION_FRAGMENT }}
     
     - name: Write version to file
       uses: DamianReeves/write-file-action@master
