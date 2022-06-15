@@ -69,10 +69,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Create tag if major release
-      uses: actions/checkout@v3
-      uses: rickstaa/action-create-tag@v1
       if: ${{ steps.version-increment-regexp-match.outputs.match == 'major' }}
-        with:
-          tag: "RELEASE!"
-          message: "Latest release"
+      uses: rickstaa/action-create-tag@v1
+      with:
+        tag: "release ${{ steps.bump_version.outputs.next-version }}"
         
