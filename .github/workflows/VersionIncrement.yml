@@ -1,7 +1,3 @@
-#- name: Check directory contents
-#  run: |
-#    ls -la
-
 name: Version increment
 
 on:
@@ -17,37 +13,39 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - uses: actions-ecosystem/action-regex-match@v2
+    - name: Check the last commit message brackets
+      uses: actions-ecosystem/action-regex-match@v2
       id: regex-match
       with:
         text: ${{ github.event.head_commit.message }}
         regex: '\[major]|\[feature]|\[bug]|\[alpha]|\[beta]|\[rc]'
       
-    - name: Check commit message
+    - name: Check if the commit message contains version increment
+      run: echo ${{ steps.regex-match.outputs.match }}
       if: ${{ steps.regex-match.outputs.match == '' }}
-      run: exit 1
-      
-    - uses: actions-ecosystem/action-regex-match@v2
+        echo "Failed to read commit brackets"
+        exit 1
+    
+    - name: Extract version increment from the last commit message
+      uses: actions-ecosystem/action-regex-match@v2
       id: version-increment-regexp-match
       with:
         text: ${{ steps.regex-match.outputs.match }}
         regex: '(?<=\[).+?(?=\])'
     
-    - name: Check version increment extract
+    - name: Check result
+      run: echo ${{ steps.version-increment-regexp-match.outputs.match }}
       if: ${{ steps.regex-match.outputs.match == '' }}
-      run: exit 1
+        echo "Failed to extract version increment"
+        exit 1
     
     - name: Read VERSION file
       uses: juliangruber/read-file-action@v1
       id: template
       with:
         path: ./VERSION.txt
-
-    - name: Check new version output
-      run: echo "${{ steps.template.outputs.content }}"
-      
-    - name: Check increment fragment
-      run: echo ${{ steps.version-increment-regexp-match.outputs.match }}
+        
+    - run: echo "${{ steps.template.outputs.content }}"
 
     - name: Increment version
       id: bump_version
@@ -56,7 +54,7 @@ jobs:
         current-version: ${{ steps.template.outputs.content }}
         version-fragment: ${{ steps.version-increment-regexp-match.outputs.match }}
     
-    - name: Write version to file
+    - name: Write new version to file
       uses: DamianReeves/write-file-action@master
       with:
         path: ./VERSION.txt
@@ -67,5 +65,5 @@ jobs:
       uses: test-room-7/action-update-file@v1
       with:
           file-path: VERSION.txt
-          commit-msg: "[SET VERSION ${{ steps.bump_version.outputs.next-version }}]"
+          commit-msg: "[set version ${{ steps.bump_version.outputs.next-version }}]"
           github-token: ${{ secrets.GITHUB_TOKEN }}
