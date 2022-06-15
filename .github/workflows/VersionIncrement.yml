@@ -13,7 +13,28 @@ env:
   VERSION_FRAGMENT: 'feature'
 
 jobs:
-  build:
+  Check commit message format:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check Commit Type
+      uses: gsactions/commit-message-checker@v1
+      with:
+        pattern: '\[[^]]+\] .+$'
+        flags: 'gm'
+        error: 'Your first line has to contain a commit type like "[BUGFIX]".'
+    - if: failure()
+      run: exit 1
+      
+    - name: Check BUGFIX
+      uses: gsactions/commit-message-checker@v1
+      with:
+        pattern: '\[feature]'
+    - if: success()
+      echo "success"
+
+  Increment version:
+    needs: Check commit message format
     runs-on: ubuntu-latest
 
     steps:
