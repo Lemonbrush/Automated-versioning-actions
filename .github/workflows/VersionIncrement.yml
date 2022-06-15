@@ -29,7 +29,7 @@ jobs:
     - name: Check BUGFIX
       uses: gsactions/commit-message-checker@v1
       with:
-        pattern: '\[feature]'
+        pattern: '\[FEATURE]'
     - if: success()
       run: echo "success"
 
