@@ -8,9 +8,7 @@ on:
   push:
     branches: [ "main" ]
 
-env:
-  # valid arguments: [ 'major' 'feature' 'bug' 'alpha' 'beta' 'rc' ]
-  VERSION_FRAGMENT: 'feature'
+# Possible options are [ major | feature | bug | alpha | beta | rc ]
 
 jobs:
   CheckCommitMessageFormat:
@@ -21,7 +19,7 @@ jobs:
       id: regex-match
       with:
         text: ${{ github.event.head_commit.message }}
-        regex: '\[major|feature|bug|alpha|beta]'
+        regex: '\[major|feature|bug|alpha|beta|rc]'
       
     - if: ${{ steps.regex-match.outputs.match == '' }}
       run: exit 1
