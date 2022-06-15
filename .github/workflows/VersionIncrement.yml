@@ -47,5 +47,5 @@ jobs:
       uses: test-room-7/action-update-file@v1
       with:
           file-path: VERSION.txt
-          commit-msg: "Increment version ${{ steps.bump_version.outputs.next-version }}"
+          commit-msg: "[SET VERSION ${{ steps.bump_version.outputs.next-version }}]"
           github-token: ${{ secrets.GITHUB_TOKEN }}
