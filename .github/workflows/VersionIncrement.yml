@@ -8,7 +8,8 @@ on:
   push:
     branches: [ "main" ]
 
-  workflow_dispatch:
+env:
+  VERSION_FRAGMENT: feature
 
 jobs:
   build:
@@ -26,12 +27,12 @@ jobs:
     - name: Get the template output
       run: echo "${{ steps.template.outputs.content }}"
 
-    - name: Bump release version
+    - name: Increment version
       id: bump_version
       uses: christian-draeger/increment-semantic-version@1.0.2
       with:
         current-version: ${{ steps.template.outputs.content }}
-        version-fragment: 'feature'
+        version-fragment: $VERSION_FRAGMENT
     
     - name: Write version to file
       uses: DamianReeves/write-file-action@master
@@ -39,9 +40,6 @@ jobs:
         path: ./VERSION.txt
         contents: ${{ steps.bump_version.outputs.next-version }}
         write-mode: 'overwrite'
-    
-    - name: Check new version
-      run: echo ${{ steps.bump_version.outputs.next-version }}
 
     - name: Commit changes
       uses: test-room-7/action-update-file@v1
