@@ -23,8 +23,8 @@ jobs:
         text: ${{ github.event.head_commit.message }}
         regex: '\[major|feature|bug|alpha|beta]'
       
-    - if: ${{ steps.regex-match.outputs.match != '' }}
-      run: echo "success - ${{ steps.regex-match.outputs.match}}"
+    - if: ${{ steps.regex-match.outputs.match == '' }}
+      run: exit 1
 
   IncrementVersion:
     needs: CheckCommitMessageFormat
@@ -47,7 +47,7 @@ jobs:
       uses: christian-draeger/increment-semantic-version@1.0.2
       with:
         current-version: ${{ steps.template.outputs.content }}
-        version-fragment: ${{ env.VERSION_FRAGMENT }}
+        version-fragment: ${{ steps.regex-match.outputs.match }}
     
     - name: Write version to file
       uses: DamianReeves/write-file-action@master
