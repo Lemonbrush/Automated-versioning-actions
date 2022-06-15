@@ -13,7 +13,7 @@ env:
   VERSION_FRAGMENT: 'feature'
 
 jobs:
-  Check commit message format:
+  Check_commit_message_format:
     runs-on: ubuntu-latest
     
     steps:
@@ -31,10 +31,10 @@ jobs:
       with:
         pattern: '\[feature]'
     - if: success()
-      echo "success"
+      run: echo "success"
 
-  Increment version:
-    needs: Check commit message format
+  Increment_version:
+    needs: Check_commit_message_format
     runs-on: ubuntu-latest
 
     steps:
