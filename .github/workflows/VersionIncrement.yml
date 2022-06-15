@@ -21,10 +21,10 @@ jobs:
       id: regex-match
       with:
         text: ${{ github.event.head_commit.message }}
-        regex: '\[feature]'
+        regex: '\[major|feature|bug|alpha|beta]'
       
-    - if: ${{ steps.regex-match.outputs.match == '[feature]' }}
-      run: echo "success"
+    - if: ${{ steps.regex-match.outputs.match != '' }}
+      run: echo "success - ${{ steps.regex-match.outputs.match}}"
 
   IncrementVersion:
     needs: CheckCommitMessageFormat
