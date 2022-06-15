@@ -11,25 +11,31 @@ on:
 # Possible options are [ major | feature | bug | alpha | beta | rc ]
 
 jobs:
-  CheckCommitMessageFormat:
+  IncrementVersion:
     runs-on: ubuntu-latest
     
     steps:
+    - uses: actions/checkout@v2
+    
     - uses: actions-ecosystem/action-regex-match@v2
       id: regex-match
       with:
         text: ${{ github.event.head_commit.message }}
-        regex: '\[major|feature|bug|alpha|beta|rc]'
+        regex: '\[major]|\[feature]|\[bug]|\[alpha]|\[beta]|\[rc]'
       
-    - if: ${{ steps.regex-match.outputs.match == '' }}
+    - name: Check commit message
+      if: ${{ steps.regex-match.outputs.match == '' }}
       run: exit 1
-
-  IncrementVersion:
-    needs: CheckCommitMessageFormat
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
+      
+    - uses: actions-ecosystem/action-regex-match@v2
+      id: version-increment-regexp-match
+      with:
+        text: ${{ steps.regex-match.outputs.match }}
+        regex: '(?<=\[).+?(?=\])'
+    
+    - name: Check version increment extract
+      if: ${{ steps.regex-match.outputs.match == '' }}
+      run: exit 1
     
     - name: Read VERSION file
       uses: juliangruber/read-file-action@v1
@@ -37,18 +43,18 @@ jobs:
       with:
         path: ./VERSION.txt
 
-    - name: Get the template output
+    - name: Check new version output
       run: echo "${{ steps.template.outputs.content }}"
       
     - name: Check increment fragment
-      run: echo ${{ steps.regex-match.outputs.match }}
+      run: echo ${{ steps.version-increment-regexp-match.outputs.match }}
 
     - name: Increment version
       id: bump_version
       uses: christian-draeger/increment-semantic-version@1.0.2
       with:
         current-version: ${{ steps.template.outputs.content }}
-        version-fragment: ${{ steps.regex-match.outputs.match }}
+        version-fragment: ${{ steps.version-increment-regexp-match.outputs.match }}
     
     - name: Write version to file
       uses: DamianReeves/write-file-action@master
