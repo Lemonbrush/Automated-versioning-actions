@@ -39,6 +39,9 @@ jobs:
 
     - name: Get the template output
       run: echo "${{ steps.template.outputs.content }}"
+      
+    - name: Check increment fragment
+      run: echo ${{ steps.regex-match.outputs.match }}
 
     - name: Increment version
       id: bump_version
