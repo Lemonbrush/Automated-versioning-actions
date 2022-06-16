@@ -72,5 +72,5 @@ jobs:
       if: ${{ steps.version-increment-regexp-match.outputs.match == 'major' }}
       uses: rickstaa/action-create-tag@v1
       with:
-        tag: "${{ steps.bump_version.outputs.next-version }}"
+        tag: "release-${{ steps.bump_version.outputs.next-version }}"
         
