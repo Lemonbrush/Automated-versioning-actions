@@ -2,7 +2,7 @@ name: Version increment
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "development" ]
 
 # Possible options are [ major | feature | bug | alpha | beta | rc ]
 
@@ -13,25 +13,36 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Check the last commit message brackets
+    - name: Check the last commit message for feature increment
       uses: actions-ecosystem/action-regex-match@v2
-      id: regex-match
+      id: feature-match
       with:
         text: ${{ github.event.head_commit.message }}
-        regex: '\[major]|\[feature]|\[bug]|\[alpha]|\[beta]|\[rc]'
-      
-    - name: Check if the commit message contains version increment
-      run: echo ${{ steps.regex-match.outputs.match }}
-      if: ${{ steps.regex-match.outputs.match == '' }}
-        echo "Failed to read commit brackets"
-        exit 1
+        regex: '/feature/|feature/'
     
-    - name: Extract version increment from the last commit message
+    - name: Check the last commit message for bugfix increment
       uses: actions-ecosystem/action-regex-match@v2
-      id: version-increment-regexp-match
+      id: bugfix-match
       with:
-        text: ${{ steps.regex-match.outputs.match }}
-        regex: '(?<=\[).+?(?=\])'
+        text: ${{ github.event.head_commit.message }}
+        regex: '/bugfix/|bugfix/'
+      
+    - name: Extract increment option
+      run: echo ${{ steps.regex-match.outputs.match }}
+      
+    - if: ${{ steps.feature-match.outputs.match == '' }} && ${{ steps.bugfix-match.outputs.match == '' }}
+      run: exit 1
+    
+    - if: ${{ steps.feature-match.outputs.match != '' }}
+      id: version-increment
+      run:
+        echo "${{ steps.feature-match.outputs.match }} in message found"
+        echo '::set-output name=fragment::feature'
+      
+    - if: ${{ steps.bugfix-match.outputs.match != '' }}
+      run:
+        echo "${{ steps.bugfix-match.outputs.match }} in message found"
+        echo '::set-output name=fragment::bug'
     
     - name: Check result
       run: echo ${{ steps.version-increment-regexp-match.outputs.match }}
@@ -52,7 +63,7 @@ jobs:
       uses: christian-draeger/increment-semantic-version@1.0.2
       with:
         current-version: ${{ steps.template.outputs.content }}
-        version-fragment: ${{ steps.version-increment-regexp-match.outputs.match }}
+        version-fragment: ${{ steps.version-increment.outputs.fragment }}
     
     - name: Write new version to file
       uses: DamianReeves/write-file-action@master
