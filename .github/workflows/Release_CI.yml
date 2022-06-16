@@ -1,0 +1,50 @@
+name: Main version bump
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  IncrementVersion:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Read VERSION file
+      uses: juliangruber/read-file-action@v1
+      id: template
+      with:
+        path: ./VERSION.txt
+
+    - name: Increment version
+      id: bump_version
+      uses: christian-draeger/increment-semantic-version@1.0.2
+      with:
+        current-version: ${{ steps.template.outputs.content }}
+        version-fragment: major
+    
+    - run: echo "${{ steps.template.outputs.content }} -> ${{ steps.bump_version.outputs.next-version }}"
+    
+    - name: Write new version to file
+      uses: DamianReeves/write-file-action@master
+      with:
+        path: ./VERSION.txt
+        contents: ${{ steps.bump_version.outputs.next-version }}
+        write-mode: 'overwrite'
+
+    - name: Commit changes
+      uses: test-room-7/action-update-file@v1
+      with:
+          file-path: VERSION.txt
+          commit-msg: "[Bot] set version ${{ steps.bump_version.outputs.next-version }}"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+  
+    MergeIntoDevelopment:
+      steps:
+      - name: checkout development
+        uses: actions/checkout@v2
+        run: git checkout development
+          
+      - name: pull main
+        run: git pull origin main
