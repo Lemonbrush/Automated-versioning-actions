@@ -1,0 +1,76 @@
+name: Version increment
+
+on:
+  push:
+    branches: [ "main" ]
+
+# Possible options are [ major | feature | bug | alpha | beta | rc ]
+
+jobs:
+  IncrementVersion:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Check the last commit message brackets
+      uses: actions-ecosystem/action-regex-match@v2
+      id: regex-match
+      with:
+        text: ${{ github.event.head_commit.message }}
+        regex: '\[major]|\[feature]|\[bug]|\[alpha]|\[beta]|\[rc]'
+      
+    - name: Check if the commit message contains version increment
+      run: echo ${{ steps.regex-match.outputs.match }}
+      if: ${{ steps.regex-match.outputs.match == '' }}
+        echo "Failed to read commit brackets"
+        exit 1
+    
+    - name: Extract version increment from the last commit message
+      uses: actions-ecosystem/action-regex-match@v2
+      id: version-increment-regexp-match
+      with:
+        text: ${{ steps.regex-match.outputs.match }}
+        regex: '(?<=\[).+?(?=\])'
+    
+    - name: Check result
+      run: echo ${{ steps.version-increment-regexp-match.outputs.match }}
+      if: ${{ steps.regex-match.outputs.match == '' }}
+        echo "Failed to extract version increment"
+        exit 1
+    
+    - name: Read VERSION file
+      uses: juliangruber/read-file-action@v1
+      id: template
+      with:
+        path: ./VERSION.txt
+        
+    - run: echo "${{ steps.template.outputs.content }}"
+
+    - name: Increment version
+      id: bump_version
+      uses: christian-draeger/increment-semantic-version@1.0.2
+      with:
+        current-version: ${{ steps.template.outputs.content }}
+        version-fragment: ${{ steps.version-increment-regexp-match.outputs.match }}
+    
+    - name: Write new version to file
+      uses: DamianReeves/write-file-action@master
+      with:
+        path: ./VERSION.txt
+        contents: ${{ steps.bump_version.outputs.next-version }}
+        write-mode: 'overwrite'
+
+    - name: Commit changes
+      uses: test-room-7/action-update-file@v1
+      with:
+          file-path: VERSION.txt
+          commit-msg: "[set version ${{ steps.bump_version.outputs.next-version }}]"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Create tag if major release
+      if: ${{ steps.version-increment-regexp-match.outputs.match == 'major' }}
+      uses: rickstaa/action-create-tag@v1
+      with:
+        tag: "release-${{ steps.bump_version.outputs.next-version }}"
+        
