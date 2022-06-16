@@ -1,4 +1,4 @@
-name: Version increment
+name: Development version bump
 
 on:
   push:
@@ -9,6 +9,9 @@ on:
 jobs:
   IncrementVersion:
     runs-on: ubuntu-latest
+    
+    outputs:
+      versionFragment: ${{ steps.version-increment.outputs.fragment }}
     
     steps:
     - uses: actions/checkout@v2
@@ -27,26 +30,23 @@ jobs:
         text: ${{ github.event.head_commit.message }}
         regex: '/bugfix/|bugfix/'
       
-    - name: Extract increment option
-      run: echo ${{ steps.regex-match.outputs.match }}
-      
-    - if: ${{ steps.feature-match.outputs.match == '' }} && ${{ steps.bugfix-match.outputs.match == '' }}
-      run: exit 1
-    
-    - if: ${{ steps.feature-match.outputs.match != '' }}
-      id: version-increment
+    - name: Check results
       run:
-        echo "${{ steps.feature-match.outputs.match }} in message found"
-        echo '::set-output name=fragment::feature'
+        echo ${{ steps.feature-match.outputs.match }}
+        echo ${{ steps.bugfix-match.outputs.match }}
+      
+    - if: ${{ steps.feature-match.outputs.match == '' && steps.bugfix-match.outputs.match == '' }}
+      run: exit 1
+      
+    - id: version-increment-fragment
+      if: ${{ steps.feature-match.outputs.match != '' }}
+      run: echo "VERSION_FRAGMENT=feature" >> $GITHUB_ENV
       
     - if: ${{ steps.bugfix-match.outputs.match != '' }}
-      run:
-        echo "${{ steps.bugfix-match.outputs.match }} in message found"
-        echo '::set-output name=fragment::bug'
+      run: echo "VERSION_FRAGMENT=bug" >> $GITHUB_ENV
     
-    - name: Check result
-      run: echo ${{ steps.version-increment-regexp-match.outputs.match }}
-      if: ${{ steps.regex-match.outputs.match == '' }}
+    - run: echo "Extracted version fragment - ${{ env.VERSION_FRAGMENT }}"
+      if: ${{ steps.outputs.fragment == '' }}
         echo "Failed to extract version increment"
         exit 1
     
@@ -55,15 +55,15 @@ jobs:
       id: template
       with:
         path: ./VERSION.txt
-        
-    - run: echo "${{ steps.template.outputs.content }}"
 
     - name: Increment version
       id: bump_version
       uses: christian-draeger/increment-semantic-version@1.0.2
       with:
         current-version: ${{ steps.template.outputs.content }}
-        version-fragment: ${{ steps.version-increment.outputs.fragment }}
+        version-fragment: ${{ env.VERSION_FRAGMENT }}
+    
+    - run: echo "${{ steps.template.outputs.content }} -> ${{ steps.bump_version.outputs.next-version }}"
     
     - name: Write new version to file
       uses: DamianReeves/write-file-action@master
@@ -78,10 +78,3 @@ jobs:
           file-path: VERSION.txt
           commit-msg: "[set version ${{ steps.bump_version.outputs.next-version }}]"
           github-token: ${{ secrets.GITHUB_TOKEN }}
-    
-    - name: Create tag if major release
-      if: ${{ steps.version-increment-regexp-match.outputs.match == 'major' }}
-      uses: rickstaa/action-create-tag@v1
-      with:
-        tag: "release-${{ steps.bump_version.outputs.next-version }}"
-        
