@@ -1,4 +1,4 @@
-name: Version increment
+name: Version increment development branch
 
 on:
   push:
