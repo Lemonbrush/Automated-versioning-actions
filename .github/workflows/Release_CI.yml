@@ -39,12 +39,12 @@ jobs:
           file-path: VERSION.txt
           commit-msg: "[Bot] set version ${{ steps.bump_version.outputs.next-version }}"
           github-token: ${{ secrets.GITHUB_TOKEN }}
-  
-    MergeIntoDevelopment:
-      steps:
-      - name: checkout development
-        uses: actions/checkout@v2
-        run: git checkout development
-          
-      - name: pull main
-        run: git pull origin main
+
+  MergeIntoDevelopment:
+    needs: IncrementVersion
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - run: git checkout development
+    - run: git pull origin main
