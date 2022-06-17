@@ -57,5 +57,5 @@ jobs:
         git pull
         git checkout main
         git pull
-        git merge development -X theirs
+        git merge development -X ours
         git push origin main
