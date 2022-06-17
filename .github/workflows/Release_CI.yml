@@ -55,7 +55,7 @@ jobs:
         git fetch --all
         git checkout development
         git pull
-        git checkout master
+        git checkout main
         git pull
         git merge development -X theirs
         git push origin main
