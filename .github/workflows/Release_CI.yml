@@ -47,10 +47,17 @@ jobs:
     - uses: actions/checkout@v3
       with:
         ssh-key: ${{ secrets.SSH }}
+        fetch-depth: 0
     
     - run: |
         git config --global user.email "aa_rubtsov@mail.ru"
         git config --global user.name "Lemonbrush"
         git fetch --all
         git checkout development
-        git pull --ff origin main
+        git pull
+        git checkout master
+        git pull
+        echo "# Merge"
+        git merge development -X theirs
+        echo "# Push"
+        git push origin master
