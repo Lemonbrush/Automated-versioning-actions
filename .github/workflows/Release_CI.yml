@@ -45,15 +45,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-      ssh-key: ${{ secrets.SSH }}
+      with:
+        ssh-key: ${{ secrets.SSH }}
     
     - run: |
-      git fetch --all
-      git checkout development
-      git pull origin main
-    
-    - name: Commit changes
-      uses: test-room-7/action-update-file@v1
-      with:
-        commit-msg: "update version"
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        git config --global user.email "aa_rubtsov@mail.ru"
+        git config --global user.name "Lemonbrush"
+        git fetch --all
+        git checkout development
+        git pull --rebase origin main
