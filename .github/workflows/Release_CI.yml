@@ -39,3 +39,19 @@ jobs:
           file-path: VERSION.txt
           commit-msg: "[Bot] set version ${{ steps.bump_version.outputs.next-version }}"
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  MergeIntoDevelopment:
+    needs: IncrementVersion
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - run: git fetch --all
+    - run: git checkout development
+    - run: git pull --rebase origin main
+    
+    - name: Commit changes
+      uses: test-room-7/action-update-file@v1
+      with:
+        commit-msg: "update version"
+        github-token: ${{ secrets.GITHUB_TOKEN }}
