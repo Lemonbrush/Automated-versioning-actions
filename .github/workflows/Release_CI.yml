@@ -48,4 +48,10 @@ jobs:
     
     - run: git fetch --all
     - run: git checkout development
-    - run: git pull origin main
+    - run: git pull --rebase origin main
+    
+    - name: Commit changes
+      uses: test-room-7/action-update-file@v1
+      with:
+        commit-msg: "update version"
+        github-token: ${{ secrets.GITHUB_TOKEN }}
