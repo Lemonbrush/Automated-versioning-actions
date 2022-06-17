@@ -57,7 +57,5 @@ jobs:
         git pull
         git checkout master
         git pull
-        echo "# Merge"
         git merge development -X theirs
-        echo "# Push"
-        git push origin master
+        git push origin main
