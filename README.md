@@ -1,7 +1,5 @@
 ![image](https://github.com/Lemonbrush/Automated-versioning-actions/blob/main/Resources/semverScheme.png)  
 
-[![MIT License][img_license]][url_license]  
-
 # Automated version increment
 
 This repo has [semantic version](https://semver.org) increment automatization based on version.txt file and a script
