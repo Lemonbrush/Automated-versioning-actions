@@ -14,7 +14,7 @@ jobs:
       versionFragment: ${{ steps.version-increment.outputs.fragment }}
     
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     
     - name: Check the last commit message brackets
       uses: actions-ecosystem/action-regex-match@v2
