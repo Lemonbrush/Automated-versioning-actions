@@ -34,7 +34,7 @@ jobs:
       id: version-increment-regexp-match
       with:
         text: ${{ steps.regex-match.outputs.match }}
-        regex: '(?<=\[).+?(?=\])'
+        regex: 'release|feature|bugfix|beta|alpha|rc'
     
     - name: Check extracted increment
       run: echo ${{ steps.version-increment-regexp-match.outputs.match }}
