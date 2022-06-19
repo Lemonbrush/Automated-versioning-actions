@@ -11,7 +11,15 @@ Allowed prefixes:
 Terminal command example:  
 **.project_scripts/Version_Increment.sh release**
 
-## How this works:
+## How this works:  
+
+The **Development_semver_increment.yml** workflow extracts the semantic version fragment from the last commit with the following regular expression  
+
+regexp: \[release]|\[feature]|\[bugfix]|\[alpha]|\[beta]|\[rc]|release/|feature/|bugfix/|alpha/|beta/|rc/    
+
+Then runs the version increment script which updates the version file with incremented version and commit the changes
+
+### Example steps: 
 
 - add VERSION.txt file to the project and type some initial version into it. Like 0.0.0
 - branch from development with one of the branch prefixes "release", "feature", "bugfix", "alpha", "beta", "rc"
@@ -20,7 +28,7 @@ Terminal command example:
 - merge your branch into development via pull request
 - the github actions workflow will automatically parse the merge commit, find prefix, increment semantic version in the version file and commit changes into development branch
 
-* you also can trigger the workflow by commit name with the prefix in brackets like this "[feature] commit message"
+* you also can trigger the workflow by commit name with the prefix in brackets like this "[feature] commit message"  
 
 ## Additional:
 
