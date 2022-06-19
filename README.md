@@ -1,4 +1,4 @@
-![image](https://github.com/Lemonbrush/Automated-versioning-actions/tree/main/Resources/semverScheme.png)
+![image](https://github.com/Lemonbrush/Automated-versioning-actions/blob/main/Resources/semverScheme.png)
 
 # Automated version increment
 
