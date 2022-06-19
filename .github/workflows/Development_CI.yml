@@ -44,7 +44,7 @@ jobs:
     
     - name: Increment version
       id: bump_version
-      run: ./Version_Increment.sh "${{ steps.version-increment-regexp-match.outputs.match }}"
+      run: ./.project_scripts/Version_Increment.sh "${{ steps.version-increment-regexp-match.outputs.match }}"
 
     - name: Commit changes
       uses: test-room-7/action-update-file@v1
