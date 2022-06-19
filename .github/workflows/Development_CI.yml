@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "development" ]
 
-# Possible options are [ major | feature | bug | alpha | beta | rc ]
+# Possible options are [ release | feature | bugfix | alpha | beta | rc ]
 
 jobs:
   IncrementVersion:
@@ -16,61 +16,35 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Check the last commit message for feature increment
+    - name: Check the last commit message brackets
       uses: actions-ecosystem/action-regex-match@v2
-      id: feature-match
+      id: regex-match
       with:
         text: ${{ github.event.head_commit.message }}
-        regex: '/feature/|feature/'
+        regex: '\[release]|\[feature]|\[bugfix]|\[alpha]|\[beta]|\[rc]|release/|feature/|bugfix/|alpha/|beta/|rc/'
     
-    - name: Check the last commit message for bugfix increment
+    - name: Check if the commit message contains version increment
+      run: echo ${{ steps.regex-match.outputs.match }}
+      if: ${{ steps.regex-match.outputs.match == '' }}
+        echo "Failed to read commit increment"
+        exit 1
+    
+    - name: Extract version increment from the last commit message
       uses: actions-ecosystem/action-regex-match@v2
-      id: bugfix-match
+      id: version-increment-regexp-match
       with:
-        text: ${{ github.event.head_commit.message }}
-        regex: '/bugfix/|bugfix/'
-      
-    - name: Check results
-      run:
-        echo ${{ steps.feature-match.outputs.match }}
-        echo ${{ steps.bugfix-match.outputs.match }}
-      
-    - if: ${{ steps.feature-match.outputs.match == '' && steps.bugfix-match.outputs.match == '' }}
-      run: exit 1
-      
-    - id: version-increment-fragment
-      if: ${{ steps.feature-match.outputs.match != '' }}
-      run: echo "VERSION_FRAGMENT=feature" >> $GITHUB_ENV
-      
-    - if: ${{ steps.bugfix-match.outputs.match != '' }}
-      run: echo "VERSION_FRAGMENT=bug" >> $GITHUB_ENV
+        text: ${{ steps.regex-match.outputs.match }}
+        regex: '(?<=\[).+?(?=\])'
     
-    - run: echo "Extracted version fragment - ${{ env.VERSION_FRAGMENT }}"
-      if: ${{ steps.outputs.fragment == '' }}
+    - name: Check extracted increment
+      run: echo ${{ steps.version-increment-regexp-match.outputs.match }}
+      if: ${{ steps.regex-match.outputs.match == '' }}
         echo "Failed to extract version increment"
         exit 1
     
-    - name: Read VERSION file
-      uses: juliangruber/read-file-action@v1
-      id: template
-      with:
-        path: ./VERSION.txt
-
     - name: Increment version
       id: bump_version
-      uses: christian-draeger/increment-semantic-version@1.0.2
-      with:
-        current-version: ${{ steps.template.outputs.content }}
-        version-fragment: ${{ env.VERSION_FRAGMENT }}
-    
-    - run: echo "${{ steps.template.outputs.content }} -> ${{ steps.bump_version.outputs.next-version }}"
-    
-    - name: Write new version to file
-      uses: DamianReeves/write-file-action@master
-      with:
-        path: ./VERSION.txt
-        contents: ${{ steps.bump_version.outputs.next-version }}
-        write-mode: 'overwrite'
+      run: git ./Version_Increment.sh 0.0.0 ${{ steps.regex-match.outputs.match }}
 
     - name: Commit changes
       uses: test-room-7/action-update-file@v1
