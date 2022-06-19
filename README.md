@@ -1,6 +1,11 @@
 # Automated version increment
 
-This repo has version increment automatization based on version txt file and script
+This repo has [semantic version](https://semver.org) increment automatization based on version txt file and script
+
+The script is placed in the .project_scripts hidden folder
+You can run it manually. To do so, you need to place a VERSION.txt file in the root directory and run the script with needed prefix as an argument  
+
+**Terminal command example:** .project_scripts/Version_Increment.sh release
 
 ### How this works:
 
@@ -15,6 +20,6 @@ This repo has version increment automatization based on version txt file and scr
 
 There is a .githook folder with pre-commit hook. You can apply branch prefix check by adding the hook with the following command:
 
-git config core.hooksPath .githooks
+**git config core.hooksPath .githooks**
 
 This pre-commit hook will prevent commiting into branch without needed prefixes

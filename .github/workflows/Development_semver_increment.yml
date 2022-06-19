@@ -1,0 +1,55 @@
+name: Development version bump
+
+on:
+  push:
+    branches: [ "development" ]
+
+# Possible options are [ release | feature | bugfix | alpha | beta | rc ]
+
+jobs:
+  IncrementVersion:
+    runs-on: ubuntu-latest
+    
+    outputs:
+      versionFragment: ${{ steps.version-increment.outputs.fragment }}
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Check the last commit message brackets
+      uses: actions-ecosystem/action-regex-match@v2
+      id: regex-match
+      with:
+        text: ${{ github.event.head_commit.message }}
+        regex: '\[release]|\[feature]|\[bugfix]|\[alpha]|\[beta]|\[rc]|release/|feature/|bugfix/|alpha/|beta/|rc/'
+    
+    - name: Check if the commit message contains version increment
+      run: echo ${{ steps.regex-match.outputs.match }}
+      if: ${{ steps.regex-match.outputs.match == '' }}
+        echo "Failed to read commit increment"
+        exit 1
+    
+    - name: Extract version increment from the last commit message
+      uses: actions-ecosystem/action-regex-match@v2
+      id: version-increment-regexp-match
+      with:
+        text: ${{ steps.regex-match.outputs.match }}
+        regex: 'release|feature|bugfix|beta|alpha|rc'
+    
+    - name: Check extracted increment
+      run: echo ${{ steps.version-increment-regexp-match.outputs.match }}
+      if: ${{ steps.version-increment-regexp-match.outputs.match == '' }}
+        echo "Failed to extract version increment"
+        exit 1
+    
+    - name: Increment version
+      id: bump_version
+      run: ./.project_scripts/Version_Increment.sh "${{ steps.version-increment-regexp-match.outputs.match }}"
+
+    - name: Commit changes
+      uses: test-room-7/action-update-file@v1
+      with:
+          file-path: VERSION.txt
+          branch: "development"
+          commit-msg: "[set version ${{ steps.bump_version.outputs.next-version }}]"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
