@@ -38,7 +38,7 @@ jobs:
     
     - name: Check extracted increment
       run: echo ${{ steps.version-increment-regexp-match.outputs.match }}
-      if: ${{ steps.regex-match.outputs.match == '' }}
+      if: ${{ steps.version-increment-regexp-match.outputs.match == '' }}
         echo "Failed to extract version increment"
         exit 1
     
