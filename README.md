@@ -28,7 +28,7 @@ Then runs the version increment script which updates the version file with incre
 - merge your branch into development via pull request
 - the github actions workflow will automatically parse the merge commit, find prefix, increment semantic version in the version file and commit changes into development branch
 
-* you also can trigger the workflow by commit name with the prefix in brackets like this "[feature] commit message"  
+*you also can trigger the workflow by commit name with the prefix in brackets like this "[feature] commit message"  
 
 ## Additional:
 
