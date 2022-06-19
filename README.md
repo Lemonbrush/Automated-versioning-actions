@@ -2,13 +2,13 @@
 
 This repo has [semantic version](https://semver.org) increment automatization based on version txt file and script
 
-The script is placed in the .project_scripts hidden folder
+The script is placed in the **.project_scripts** hidden folder  
 You can run it manually. To do so you need to create a VERSION.txt file in the root directory and run the script with allowed prefix as an argument  
 
 Allowed prefixes:  
 **release** | **feature** | **bugfix** | **alpha** | **beta** | **rc**
 
-Terminal command example:
+Terminal command example:  
 **.project_scripts/Version_Increment.sh release**
 
 ## How this works:
@@ -20,7 +20,7 @@ Terminal command example:
 - merge your branch into development via pull request
 - the github actions workflow will automatically parse the merge commit, find prefix, increment semantic version in the version file and commit changes into development branch
 
-*you also can trigger the workflow by commit name with the prefix in brackets like this "[feature] commit message"
+* you also can trigger the workflow by commit name with the prefix in brackets like this "[feature] commit message"
 
 ## Additional:
 
