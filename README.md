@@ -1,4 +1,6 @@
-![image](https://github.com/Lemonbrush/Automated-versioning-actions/blob/main/Resources/semverScheme.png)
+![image](https://github.com/Lemonbrush/Automated-versioning-actions/blob/main/Resources/semverScheme.png)  
+
+[![MIT License][img_license]][url_license]  
 
 # Automated version increment
 
