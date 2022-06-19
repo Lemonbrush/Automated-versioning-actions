@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+LC_ALL=C
+
+local_branch="$(git rev-parse --abbrev-ref HEAD)"
+
+prefixes="feature|bugfix|release|beta|alpha|rc"
+
+valid_branch_regex="^($prefixes)\/[a-z0-9._-]+$"
+
+message="❌ Wrong branch prefix. Valid prefixes $prefixes ❌"
+
+if [[ ! $local_branch =~ $valid_branch_regex ]]
+then
+    echo "$message"
+    exit 1
+fi
+
+exit 0
